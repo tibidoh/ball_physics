@@ -45,7 +45,8 @@ public class MainScreen implements Screen {
         }
 
         world.setGravity( new Vector2( (float) Math.sin( gravityDirection ) * GRAVITY, (float) Math.cos( gravityDirection ) * GRAVITY ) );
-        world.step( 1 / 60f, 10, 7 );
+        ball.applyForces();
+        world.step( 1 / 60f, 5, 7 );
         Gdx.gl.glClearColor( 0.1f, 0.1f, 0.1f, 1 );
         Gdx.gl.glClear( GL10.GL_COLOR_BUFFER_BIT );
 
@@ -69,9 +70,9 @@ public class MainScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(this.inputProcessor);
+        Gdx.input.setInputProcessor( this.inputProcessor );
 
-        this.ball = new Ball( world, 50, 1f, new Vector2( 2.5f, 2.5f ) );
+        this.ball = new Ball( world, new Vector2( 2.5f, 2.5f ) );
         createBox();
     }
 
@@ -98,11 +99,11 @@ public class MainScreen implements Screen {
 
         bulkFixtureDef.shape = bulkShape;
 
-        leftBulk.createFixture(bulkFixtureDef);
+        leftBulk.createFixture( bulkFixtureDef );
         rightBulk.createFixture( bulkFixtureDef );
         bulkShape.setAsBox( ( 2.49f ), 0.1f, Vector2.Zero, 0f );
-        topBulk.createFixture(bulkFixtureDef);
-        bottomBulk.createFixture(bulkFixtureDef);
+        topBulk.createFixture( bulkFixtureDef );
+        bottomBulk.createFixture( bulkFixtureDef );
 
         bodyDef.position.set( 0.6f, 2.5f );
         Body centerBulk = world.createBody( bodyDef );
