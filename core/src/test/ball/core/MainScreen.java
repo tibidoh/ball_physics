@@ -45,8 +45,8 @@ public class MainScreen implements Screen {
         }
 
         world.setGravity( new Vector2( (float) Math.sin( gravityDirection ) * GRAVITY, (float) Math.cos( gravityDirection ) * GRAVITY ) );
-        ball.applyForces();
-        world.step( 1 / 60f, 5, 7 );
+        ball.applyInnerTension(inputProcessor.isTensed());
+        world.step( 1 / 60f, 50, 50 );
         Gdx.gl.glClearColor( 0.1f, 0.1f, 0.1f, 1 );
         Gdx.gl.glClear( GL10.GL_COLOR_BUFFER_BIT );
 
@@ -84,6 +84,8 @@ public class MainScreen implements Screen {
         bulkFixtureDef.friction = 0.5f;
         bulkFixtureDef.restitution = 0.5f;
         bulkFixtureDef.density = 1;
+        bulkFixtureDef.filter.maskBits=0x1111;
+        bulkFixtureDef.filter.categoryBits=0x1111;
 
         bodyDef.position.set( 0f, 2.5f );
         Body leftBulk = world.createBody( bodyDef );
