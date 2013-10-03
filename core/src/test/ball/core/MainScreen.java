@@ -41,16 +41,21 @@ public class MainScreen implements Screen {
                 gravityRotationAngle = -gravityRotationAngle;
             }
             this.gravityDirection += gravityRotationAngle;
-            ball.awake();
+            updateGravity();
         }
 
-        world.setGravity( new Vector2( (float) Math.sin( gravityDirection ) * GRAVITY, (float) Math.cos( gravityDirection ) * GRAVITY ) );
-        ball.applyInnerTension(inputProcessor.isTensed());
+        ball.applyInnerTension( inputProcessor.isTensed() );
         world.step( 1 / 60f, 50, 50 );
         Gdx.gl.glClearColor( 0.1f, 0.1f, 0.1f, 1 );
         Gdx.gl.glClear( GL10.GL_COLOR_BUFFER_BIT );
 
         debugRenderer.render( world, debugProjectionMatrix );
+    }
+
+    private void updateGravity() {
+        Vector2 gravityVector = new Vector2( (float) Math.sin( gravityDirection ) * GRAVITY, (float) Math.cos( gravityDirection ) * GRAVITY );
+        System.out.println( "new gravity: " + gravityVector );
+        world.setGravity( gravityVector );
     }
 
     @Override
@@ -73,6 +78,7 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor( this.inputProcessor );
 
         this.ball = new Ball( world, new Vector2( 2.5f, 2.5f ) );
+        updateGravity();
         createBox();
     }
 
@@ -84,8 +90,8 @@ public class MainScreen implements Screen {
         bulkFixtureDef.friction = 0.5f;
         bulkFixtureDef.restitution = 0.5f;
         bulkFixtureDef.density = 1;
-        bulkFixtureDef.filter.maskBits=0x1111;
-        bulkFixtureDef.filter.categoryBits=0x1111;
+        bulkFixtureDef.filter.maskBits = 0x1111;
+        bulkFixtureDef.filter.categoryBits = 0x1111;
 
         bodyDef.position.set( 0f, 2.5f );
         Body leftBulk = world.createBody( bodyDef );

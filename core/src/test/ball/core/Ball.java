@@ -14,20 +14,21 @@ public class Ball {
     private final int SEGMENT_COUNT = 20;
     private final float RADIUS = 0.6f;
 
-    LinkedList<Body> bodies = new LinkedList<Body>();
-
+    LinkedList<Body> segments = new LinkedList<Body>();
     Set<Joint> joints = new HashSet<Joint>();
 
 
     public void applyInnerTension( boolean mega ) {
-        for ( Body segment : bodies ) {
+        for ( Body segment : segments ) {
 
             float segmentMass = segment.getMassData().mass;
 
-            float normalImpulse = segmentMass * 0.8f;
-            float megaImpulse = segmentMass * 3f;
-            segment.applyLinearImpulse( new Vector2( mega ? megaImpulse : normalImpulse, 0 ).rotate( (float) ( segment.getAngle() / Math.PI * 180 ) ), segment.getWorldCenter(), true );
+            float normalImpulse = segmentMass * 0.1f;
+            float megaImpulse = segmentMass * 2.5f;
 
+            segment.applyLinearImpulse(
+                    new Vector2( mega ? megaImpulse : normalImpulse, 0 ).rotate( (float) ( segment.getAngle() / Math.PI * 180 ) ),
+                    segment.getWorldCenter(), true );
         }
     }
 
@@ -35,6 +36,7 @@ public class Ball {
         float segmentLength = (float) ( 2d * Math.PI * RADIUS / SEGMENT_COUNT );
         BodyDef segmentDef = new BodyDef();
         segmentDef.type = BodyDef.BodyType.DynamicBody;
+        segmentDef.allowSleep = false;
 
         PolygonShape segmentShape = new PolygonShape();
 
@@ -66,17 +68,17 @@ public class Ball {
 
             //Not making joint for the first segment
             if ( segmentNum != 0 ) {
-                joints.add( setUpJoint( segment, bodies.getLast(), world, segmentLength, jointDef ) );
+                joints.add( setUpJoint( segment, segments.getLast(), world, segmentLength, jointDef ) );
             }
             segment.setTransform( segment.getPosition(), angle );
 
-            bodies.add( segment );
+            segments.add( segment );
         }
 
-        //Degree between first and last segments is 360 + step
+        //Degree between first and last segment is 360 degree higher then normal
         jointDef.lowerAngle = (float) ( jointDef.lowerAngle + 2 * Math.PI );
         jointDef.upperAngle = (float) ( jointDef.upperAngle + 2 * Math.PI );
-        joints.add( setUpJoint( bodies.getFirst(), bodies.getLast(), world, segmentLength, jointDef ) );
+        joints.add( setUpJoint( segments.getFirst(), segments.getLast(), world, segmentLength, jointDef ) );
 
         segmentShape.dispose();
     }
@@ -87,17 +89,11 @@ public class Ball {
         jointDef.bodyB = body2;
 
         Vector2 bodyACenter = jointDef.bodyA.getLocalCenter();
-        jointDef.localAnchorA.set( bodyACenter.x, bodyACenter.y - segmentLength / 2 );
+        jointDef.localAnchorA.set( bodyACenter.x + SEGMENT_THICKNESS / 2, bodyACenter.y - segmentLength / 2f );
 
         Vector2 bodyBCenter = jointDef.bodyB.getLocalCenter();
-        jointDef.localAnchorB.set( bodyBCenter.x, bodyACenter.y + segmentLength / 2 );
+        jointDef.localAnchorB.set( bodyBCenter.x + SEGMENT_THICKNESS / 2, bodyACenter.y + segmentLength / 2f );
 
         return (RevoluteJoint) world.createJoint( jointDef );
-    }
-
-    public void awake() {
-        for ( Body body : bodies ) {
-            body.setAwake( true );
-        }
     }
 }
