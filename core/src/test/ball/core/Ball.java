@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class Ball {
 
-    private final float SEGMENT_THICKNESS = 0.1f;
-    private final int SEGMENT_COUNT = 20;
+    private final float SEGMENT_THICKNESS = 0.15f;
+    private final int SEGMENT_COUNT = 25;
     private final float RADIUS = 0.6f;
 
     LinkedList<Body> segments = new LinkedList<Body>();
@@ -23,8 +23,8 @@ public class Ball {
 
             float segmentMass = segment.getMassData().mass;
 
-            float normalImpulse = segmentMass * 0.1f;
-            float megaImpulse = segmentMass * 2.5f;
+            float normalImpulse = segmentMass * 1.5f;
+            float megaImpulse = segmentMass * 7f;
 
             segment.applyLinearImpulse(
                     new Vector2( mega ? megaImpulse : normalImpulse, 0 ).rotate( (float) ( segment.getAngle() / Math.PI * 180 ) ),
@@ -44,7 +44,7 @@ public class Ball {
         fixtureDef.shape = segmentShape;
         fixtureDef.density = 5f;
         fixtureDef.friction = 1f;
-        fixtureDef.restitution = 0.5f;
+        fixtureDef.restitution = 0f;
 
         fixtureDef.filter.categoryBits = 0x0001;
         fixtureDef.filter.maskBits = 0x1110;

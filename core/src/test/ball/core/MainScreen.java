@@ -88,7 +88,7 @@ public class MainScreen implements Screen {
 
         FixtureDef bulkFixtureDef = new FixtureDef();
         bulkFixtureDef.friction = 0.5f;
-        bulkFixtureDef.restitution = 0.5f;
+        bulkFixtureDef.restitution = 0f;
         bulkFixtureDef.density = 1;
         bulkFixtureDef.filter.maskBits = 0x1111;
         bulkFixtureDef.filter.categoryBits = 0x1111;
