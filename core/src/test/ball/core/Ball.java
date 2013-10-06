@@ -10,9 +10,15 @@ import java.util.Set;
 
 public class Ball {
 
-    private final float SEGMENT_THICKNESS = 0.15f;
-    private final int SEGMENT_COUNT = 25;
-    private final float RADIUS = 0.6f;
+    public static final float INTER_SEGMENT_TORQUE = 0.5f;
+
+    public static final float NORMAL_SEGMENT_ACCELERATION = 1.5f;
+    public static final float MEGA_SEGMENT_ACCELERATION = 7f;
+
+    private static final float SEGMENT_THICKNESS = 0.15f;
+    private static final float SEGMENT_DENSITY = 5f;
+    private static final int SEGMENT_COUNT = 25;
+    private static final float RADIUS = 0.6f;
 
     LinkedList<Body> segments = new LinkedList<Body>();
     Set<Joint> joints = new HashSet<Joint>();
@@ -23,8 +29,8 @@ public class Ball {
 
             float segmentMass = segment.getMassData().mass;
 
-            float normalImpulse = segmentMass * 1.5f;
-            float megaImpulse = segmentMass * 7f;
+            float normalImpulse = segmentMass * NORMAL_SEGMENT_ACCELERATION;
+            float megaImpulse = segmentMass * MEGA_SEGMENT_ACCELERATION;
 
             segment.applyLinearImpulse(
                     new Vector2( mega ? megaImpulse : normalImpulse, 0 ).rotate( (float) ( segment.getAngle() / Math.PI * 180 ) ),
@@ -42,7 +48,7 @@ public class Ball {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = segmentShape;
-        fixtureDef.density = 5f;
+        fixtureDef.density = SEGMENT_DENSITY;
         fixtureDef.friction = 1f;
         fixtureDef.restitution = 0f;
 
@@ -53,6 +59,10 @@ public class Ball {
         jointDef.enableLimit = true;
         jointDef.lowerAngle = (float) ( Math.PI * -0.25 );
         jointDef.upperAngle = (float) ( Math.PI * 0.05 );
+
+        jointDef.enableMotor = true;
+        jointDef.motorSpeed = 0;
+        jointDef.maxMotorTorque = INTER_SEGMENT_TORQUE;
 
         double angleStep = 2d * Math.PI / SEGMENT_COUNT;
         float angle = 0;
@@ -84,7 +94,6 @@ public class Ball {
     }
 
     private RevoluteJoint setUpJoint( Body body1, Body body2, World world, float segmentLength, RevoluteJointDef jointDef ) {
-
         jointDef.bodyA = body1;
         jointDef.bodyB = body2;
 

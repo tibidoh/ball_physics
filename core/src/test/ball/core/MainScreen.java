@@ -11,29 +11,23 @@ import com.badlogic.gdx.physics.box2d.*;
 public class MainScreen implements Screen {
 
     public static final float GRAVITY = 9.8f;
-    private int screenWidth;
-    private int screenHeight;
+
+    public static final float BOX_WIDTH = 5f;
+    public static final float BOX_HEIGHT = 5f;
 
     private double gravityDirection = Math.PI;
     private final double GRAVITY_CHANGE_SPEED = Math.PI / 2;
 
-
-    static final float BOX_TO_WORLD = 100f;
-    static final float WORLD_TO_BOX = 1 / BOX_TO_WORLD;
-
     private World world = new World( Vector2.Zero, true );
-
     private OrthographicCamera cam = new OrthographicCamera();
-    Matrix4 debugProjectionMatrix;
-    Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+    private Matrix4 debugProjectionMatrix;
+    private Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+    private BallInputProcessor inputProcessor = new BallInputProcessor();
+    private Ball ball;
 
-    BallInputProcessor inputProcessor = new BallInputProcessor();
-
-    Ball ball;
 
     @Override
     public void render( float delta ) {
-
         Boolean rotationDirection = inputProcessor.getGravityRotationDirection();
         if ( rotationDirection != null ) {
             double gravityRotationAngle = delta * GRAVITY_CHANGE_SPEED;
@@ -53,24 +47,25 @@ public class MainScreen implements Screen {
     }
 
     private void updateGravity() {
-        Vector2 gravityVector = new Vector2( (float) Math.sin( gravityDirection ) * GRAVITY, (float) Math.cos( gravityDirection ) * GRAVITY );
-        System.out.println( "new gravity: " + gravityVector );
+        Vector2 gravityVector = new Vector2(
+                (float) Math.sin( gravityDirection ) * GRAVITY,
+                (float) Math.cos( gravityDirection ) * GRAVITY );
         world.setGravity( gravityVector );
     }
 
     @Override
     public void resize( int width, int height ) {
-        screenWidth = width;
-        screenHeight = height;
+        float boxToWorldByHeight = height / BOX_HEIGHT;
+        float boxToWorldByWidth = width / BOX_WIDTH;
+        float boxToWorld = Math.min( boxToWorldByHeight, boxToWorldByWidth );
 
         cam.viewportWidth = width;
         cam.viewportHeight = height;
-        cam.position.set( screenWidth / 2f, screenHeight / 2f, 0 );
+        cam.position.set( BOX_WIDTH * boxToWorld / 2, BOX_HEIGHT * boxToWorld / 2, 0 );
         cam.update();
 
         debugProjectionMatrix = new Matrix4( cam.combined );
-        debugProjectionMatrix.scale( BOX_TO_WORLD, BOX_TO_WORLD, 1f );
-
+        debugProjectionMatrix.scale( boxToWorld, boxToWorld, 1f );
     }
 
     @Override
