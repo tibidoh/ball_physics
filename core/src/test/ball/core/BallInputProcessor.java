@@ -1,7 +1,9 @@
 package test.ball.core;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +11,9 @@ import java.util.Map;
 public class BallInputProcessor implements InputProcessor {
 
     static Map<Integer, Boolean> keys = new HashMap<Integer, Boolean>();
+    static boolean touched = false;
+    static boolean accelerometerAvailable = Gdx.input.isPeripheralAvailable( Input.Peripheral.Accelerometer );
+    ;
 
     static {
         keys.put( Input.Keys.LEFT, false );
@@ -35,12 +40,14 @@ public class BallInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown( int screenX, int screenY, int pointer, int button ) {
-        return false;
+        touched = true;
+        return true;
     }
 
     @Override
     public boolean touchUp( int screenX, int screenY, int pointer, int button ) {
-        return false;
+        touched = false;
+        return true;
     }
 
     @Override
@@ -59,7 +66,15 @@ public class BallInputProcessor implements InputProcessor {
     }
 
     public boolean isTensed() {
-        return keys.get( Input.Keys.SPACE );
+        return touched || keys.get( Input.Keys.SPACE );
+    }
+
+    public Vector2 getGravityUnitVector() {
+        if ( !accelerometerAvailable ) {
+            return null;
+        }
+
+        return new Vector2( Gdx.input.getAccelerometerX(), Gdx.input.getAccelerometerY() ).nor();
     }
 
     public Boolean getGravityRotationDirection() {
@@ -69,4 +84,5 @@ public class BallInputProcessor implements InputProcessor {
             return null;
         } else { return right; }
     }
+
 }

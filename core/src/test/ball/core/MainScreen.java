@@ -15,10 +15,10 @@ public class MainScreen implements Screen {
     public static final float BOX_WIDTH = 5f;
     public static final float BOX_HEIGHT = 5f;
 
-    private double gravityDirection = Math.PI;
-    private final double GRAVITY_CHANGE_SPEED = Math.PI / 2;
+    private Vector2 gravityVector = new Vector2( 0, -1 ).scl( GRAVITY );
+    private final float GRAVITY_CHANGE_SPEED = 90;
 
-    private World world = new World( Vector2.Zero, true );
+    private World world = new World( gravityVector, true );
     private OrthographicCamera cam = new OrthographicCamera();
     private Matrix4 debugProjectionMatrix;
     private Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
@@ -30,12 +30,17 @@ public class MainScreen implements Screen {
     public void render( float delta ) {
         Boolean rotationDirection = inputProcessor.getGravityRotationDirection();
         if ( rotationDirection != null ) {
-            double gravityRotationAngle = delta * GRAVITY_CHANGE_SPEED;
-            if ( rotationDirection ) {
+            float gravityRotationAngle = delta * GRAVITY_CHANGE_SPEED;
+            if ( !rotationDirection ) {
                 gravityRotationAngle = -gravityRotationAngle;
             }
-            this.gravityDirection += gravityRotationAngle;
-            updateGravity();
+            this.gravityVector.rotate( gravityRotationAngle );
+            world.setGravity( gravityVector );
+        }
+
+        Vector2 gravityUnitVector = inputProcessor.getGravityUnitVector();
+        if ( gravityUnitVector != null ) {
+            world.setGravity( gravityUnitVector.scl( GRAVITY ) );
         }
 
         ball.applyInnerTension( inputProcessor.isTensed() );
@@ -44,13 +49,6 @@ public class MainScreen implements Screen {
         Gdx.gl.glClear( GL10.GL_COLOR_BUFFER_BIT );
 
         debugRenderer.render( world, debugProjectionMatrix );
-    }
-
-    private void updateGravity() {
-        Vector2 gravityVector = new Vector2(
-                (float) Math.sin( gravityDirection ) * GRAVITY,
-                (float) Math.cos( gravityDirection ) * GRAVITY );
-        world.setGravity( gravityVector );
     }
 
     @Override
@@ -73,7 +71,6 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor( this.inputProcessor );
 
         this.ball = new Ball( world, new Vector2( 2.5f, 2.5f ) );
-        updateGravity();
         createBox();
     }
 
