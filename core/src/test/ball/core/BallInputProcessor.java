@@ -74,7 +74,7 @@ public class BallInputProcessor implements InputProcessor {
             return null;
         }
 
-        return new Vector2( Gdx.input.getAccelerometerX(), Gdx.input.getAccelerometerY() ).nor();
+        return new Vector2( - Gdx.input.getAccelerometerX(), - Gdx.input.getAccelerometerY() ).nor();
     }
 
     public Boolean getGravityRotationDirection() {
